@@ -82,7 +82,9 @@ struct AAKPlayerData: public PlayerData {
       ExitWater,
       MaxSounds
    };
-   DECLARE_SOUNDASSET_ARRAY(AAKPlayerData, PlayerSound, Sounds::MaxSounds);
+   AssetRef<SoundAsset> mPlayerSoundAssetRef[Sounds::MaxSounds];
+
+   SFXTrack* getPlayerSoundProfile(U32 idx) const { return mPlayerSoundAssetRef[idx].notNull() ? mPlayerSoundAssetRef[idx].assetPtr->getSFXTrack() : NULL; }
 
    enum {
       // *** WARNING ***

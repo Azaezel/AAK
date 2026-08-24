@@ -1,7 +1,8 @@
 <SoundAsset
-    AssetName="desert_wind_soft">
+    AssetName="desert_wind_soft"
+    isLooping="true">
     <SoundAsset.slots>
         <slots_beginarray
-            SoundFile="@assetFile=desert_wind_soft.ogg"/>
+            SoundFile="@assetFile=@desert_wind_soft.ogg"/>
     </SoundAsset.slots>
 </SoundAsset>

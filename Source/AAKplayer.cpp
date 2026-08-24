@@ -352,7 +352,7 @@ bool AAKPlayerData::preload(bool server, String& errorStr)
    if (!server) {
       for (U32 i = 0; i < MaxSounds; ++i)
       {
-         if (!isPlayerSoundValid(i))
+         if (mPlayerSoundAssetRef[i].isNull())
          {
             //return false; -TODO: trigger asset download
          }
@@ -568,7 +568,17 @@ void AAKPlayerData::initPersistFields()
    Parent::initPersistFields();
 
    addGroup( "Interaction: Sounds" );
-   INITPERSISTFIELD_SOUNDASSET_ENUMED(PlayerSound, aakPlayerSoundsEnum, AAKPlayerData::Sounds::MaxSounds, AAKPlayerData, "Sounds related to player interaction.");
+   for (U32 i = 0; i < AAKPlayerData::Sounds::MaxSounds; i++)
+   {
+      const aakPlayerSoundsEnum itter = static_cast<aakPlayerSoundsEnum>(i);
+      const char* enumString = castConsoleTypeToString(itter);
+      if (enumString && enumString[0])
+      {
+         ADD_FIELD(assetEnumNameConcat(enumString, Asset), TypeSoundAssetRef,
+            Offset(mPlayerSoundAssetRef[0], AAKPlayerData) + sizeof(mPlayerSoundAssetRef[0]) * i)
+            .doc("Sounds related to player interaction.");
+      }
+   }
    endGroup( "Interaction: Sounds" );
 
    //Ubiq: TODO: put these into groups that make more sense & add documentation strings
@@ -885,7 +895,7 @@ bool AAKPlayer::onNewDataBlock( GameBaseData *dptr, bool reload )
    {
       SFX_DELETE( mSlideSound );
 
-      if (mDataBlock->getPlayerSound(AAKPlayerData::slide))
+      if (mDataBlock->getPlayerSoundProfile(AAKPlayerData::slide))
          mSlideSound = SFX->createSource(mDataBlock->getPlayerSoundProfile(AAKPlayerData::slide));
    }
 
@@ -4109,7 +4119,7 @@ void AAKPlayer::playFootstepSound( bool triggeredLeft, Material* contactMaterial
 	   }
    }
 
-   else if( contactMaterial && contactMaterial->isCustomFootstepSoundValid())
+   else if( contactMaterial && contactMaterial->getCustomFootstepSoundProfile())
    {
       // Footstep sound defined on material.
       //Ubiq: set volume and pitch based on player velocity (landing is always max volume)
@@ -4174,7 +4184,7 @@ void AAKPlayer::playImpactSound()
       {
          Material* material = ( rInfo.material ? dynamic_cast< Material* >( rInfo.material->getMaterial() ) : 0 );
 
-         if( material && material->isCustomImpactSoundValid())
+         if( material && material->getCustomImpactSoundProfile())
             SFX->playOnce( material->getCustomImpactSoundProfile(), &getTransform() );
          else
          {
